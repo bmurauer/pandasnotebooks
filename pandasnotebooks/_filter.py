@@ -13,6 +13,7 @@ class FilterWidget:
             drop_columns=None,
             extract_grid_params=True,
             score_name='mean_test_score',
+            auto_open=True,
     ):
         if keep_columns is not None and drop_columns is not None:
             raise ValueError(
@@ -45,19 +46,20 @@ class FilterWidget:
         self.filter_button = widgets.Button(description="Filter")
         self.filter_button.on_click(self.do_filter)
 
-        display(widgets.VBox([
-            widgets.HBox([
-                widgets.VBox([
-                    self.all_button,
-                    self.none_button,
-                    self.invert_button,
+        if auto_open:
+            display(widgets.VBox([
+                widgets.HBox([
+                    widgets.VBox([
+                        self.all_button,
+                        self.none_button,
+                        self.invert_button,
+                    ]),
+                    widgets.VBox(list(self.filter_widgets.values())),
                 ]),
-                widgets.VBox(list(self.filter_widgets.values())),
-            ]),
-            self.extract_grid_params,
-            self.score_name,
-            self.filter_button,
-        ], layout={'border': '1px solid grey'}))
+                self.extract_grid_params,
+                self.score_name,
+                self.filter_button,
+            ], layout={'border': '1px solid grey'}))
 
     def set_invert(self, *args):
         self._set(lambda x: not x.value)

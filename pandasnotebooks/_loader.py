@@ -17,6 +17,7 @@ class LoaderWidget:
             plan_file=None,
             allow_dirty_rows=False,
             allow_multiple_git_ids=False,
+            auto_open=True,
     ):
         layout = widgets.Layout(width='70%')
         s = {'description_width': '140px'}
@@ -41,14 +42,15 @@ class LoaderWidget:
                 value=allow_multiple_git_ids)
         self.load_rows_button = widgets.Button(description="load")
         self.load_rows_button.on_click(self.load)
-        display(
-            widgets.VBox([
-                widgets.VBox(list(self.filter_widgets.values())),
-                self.allow_dirty_rows,
-                self.allow_multiple_git_ids,
-                self.load_rows_button,
-            ], layout={'border': '1px solid grey'})
-        )
+        if auto_open:
+            display(
+                widgets.VBox([
+                    widgets.VBox(list(self.filter_widgets.values())),
+                    self.allow_dirty_rows,
+                    self.allow_multiple_git_ids,
+                    self.load_rows_button,
+                ], layout={'border': '1px solid grey'})
+            )
         self.df = None
 
     def load(self, *args):
