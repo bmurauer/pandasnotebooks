@@ -1,18 +1,15 @@
-import os
 import logging
+import os
 
 import ipywidgets as widgets
 import matplotlib.pyplot as plt
 from IPython.display import display
 
-
 plt.rcParams['figure.figsize'] = (20, 10)
 logger = logging.getLogger(__name__)
 
 
-class PlotWidget:
-    def __init__(
-        self,
+def plot_multi_scores(
         df,
         group_keys=None,
         filter_key=None,
@@ -20,7 +17,35 @@ class PlotWidget:
         method='max',
         output_file=None,
         transpose=True,
-        score_name=None,
+        score_names=None):
+    tab_outputs = []
+    tab = widgets.Tab()
+    for i, score_name in enumerate(score_names):
+        output = widgets.Output()
+        tab_outputs.append(output)
+        tab.set_title(i, score_name)
+        with output:
+            other_scores = [s for s in score_names if s != score_name]
+            sub_df = df.drop(columns=other_scores)
+            widget = PlotWidget(sub_df, group_keys, filter_key, filter_values,
+                                method,
+                                output_file, transpose, score_name)
+
+    tab.children = tab_outputs
+    display(tab)
+
+
+class PlotWidget:
+    def __init__(
+            self,
+            df,
+            group_keys=None,
+            filter_key=None,
+            filter_values=None,
+            method='max',
+            output_file=None,
+            transpose=True,
+            score_name=None,
     ):
         if score_name is not None:
             group_columns = [c for c in df.columns if c != score_name]
