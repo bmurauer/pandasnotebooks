@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pandasnotebooks"
-version = "0.1.4"
+version = "0.2.0"
 description = "Widgets to analyze, manipulate dataframes from dbispipelines."
 authors = ["Benjamin Murauer <b.murauer@posteo.de>"]
 license = "GPL-3.0+"
@@ -9,7 +9,7 @@ license = "GPL-3.0+"
 python = "^3.6.1"
 pandas = "^1.1.1"
 ipywidgets = "^7.5.1"
-dbispipeline = "^0.7.2"
+dbispipeline = "^0.8.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

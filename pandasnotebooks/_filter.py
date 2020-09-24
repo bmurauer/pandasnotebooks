@@ -79,6 +79,6 @@ class FilterWidget:
                             v.value]
         self.df = self.original_df[selected_columns]
         if self.extract_grid_params.value:
-            self.df = extract_gridsearch_parameters(self.df,
-                                                    self.score_name.value)
+            score_names = self.score_name.value.split(',')
+            self.df = extract_gridsearch_parameters(self.df, score_names)
             print('extracted grid parameters')
