@@ -57,13 +57,25 @@ class LoaderWidget:
         session = DB.session()
         query = session.query(DbModel)
         for field, widget in self.filter_widgets.items():
-            if widget.value:
-                if ',' in widget.value:
+            if not widget.value:
+                break
+            val = widget.value
+            if field == 'id':
+                if '-' in val:
+                    min_val, max_val = val.split('-')
+                    query = query.filter(DbModel.id >= min_val)
+                    query = query.filter(DbModel.id <= max_val)
+                elif ',' in val:
+                    query = query.filter(DbModel.id.in_(val.split(',')))
+                else:
+                    query = query.filter(DbModel.id == val)
+            else:
+                if ',' in val:
                     query = query.filter(
-                        getattr(DbModel, field).in_(widget.value.split(',')))
+                        getattr(DbModel, field).in_(val.split(',')))
                 else:
                     query = query.filter(
-                        getattr(DbModel, field) == widget.value)
+                        getattr(DbModel, field) == val)
         self.df = rows_to_dataframe(
             query,
             allow_git_dirty_rows=self.allow_dirty_rows.value,
