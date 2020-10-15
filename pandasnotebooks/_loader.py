@@ -64,7 +64,8 @@ class LoaderWidget:
                 if '-' in val:
                     min_val, max_val = val.split('-')
                     query = query.filter(DbModel.id >= min_val)
-                    query = query.filter(DbModel.id <= max_val)
+                    if max_val != '*':
+                        query = query.filter(DbModel.id <= max_val)
                 elif ',' in val:
                     query = query.filter(DbModel.id.in_(val.split(',')))
                 else:
