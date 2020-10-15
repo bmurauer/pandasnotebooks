@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pandasnotebooks"
-version = "0.3.1"
+version = "0.3.2"
 description = "Widgets to analyze, manipulate dataframes from dbispipelines."
 authors = ["Benjamin Murauer <b.murauer@posteo.de>"]
 license = "GPL-3.0+"
