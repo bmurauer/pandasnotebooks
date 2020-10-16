@@ -58,7 +58,7 @@ class LoaderWidget:
         query = session.query(DbModel)
         for field, widget in self.filter_widgets.items():
             if not widget.value:
-                break
+                continue
             val = widget.value
             if field == 'id':
                 if '-' in val:
