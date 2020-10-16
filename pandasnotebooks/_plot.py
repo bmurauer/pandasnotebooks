@@ -29,7 +29,7 @@ def plot_multi_scores(
             sub_df = df.drop(columns=other_scores)
             widget = PlotWidget(sub_df, group_keys, filter_key, filter_values,
                                 method,
-                                output_file, transpose, score_name)
+                                output_file, transpose)
 
     tab.children = tab_outputs
     display(tab)
@@ -45,12 +45,7 @@ class PlotWidget:
             method='max',
             output_file=None,
             transpose=True,
-            score_name=None,
     ):
-        if score_name is not None:
-            group_columns = [c for c in df.columns if c != score_name]
-            df = df.fillna('N/A').groupby(group_columns).max()
-
         self.df = df
         self.filtered_df = df
 
@@ -110,6 +105,7 @@ class PlotWidget:
                 self.df.index.get_level_values(filter_key).isin(filter_value)]
         else:
             df = self.df
+        print(parameter)
         group = df.groupby(list(parameter))
         if method == 'box':
             group.boxplot(subplots=False, rot=90, figsize=(20, 5))
