@@ -26,11 +26,9 @@ def plot_multi_scores(
         tab_outputs.append(output)
         tab.set_title(i, score_name)
         with output:
-            other_scores = [s for s in score_names if s != score_name]
-            sub_df = df.drop(columns=other_scores)
+            sub_df = df[score_name]
             widget = PlotWidget(sub_df, group_keys, filter_key, filter_values,
-                                method,
-                                output_file, transpose)
+                                method, output_file, transpose)
             result_widgets[score_name] = widget
     tab.children = tab_outputs
     display(tab)
