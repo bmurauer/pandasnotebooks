@@ -192,10 +192,10 @@ class LatexWidget:
             result += str(self.git_commit_ids) + '\n'
         formatters = self._generate_formatters()
 
-        if self.row_ids is not None:
+        if self.row_ids:
             r_min, r_max = min(self.row_ids), max(self.row_ids)
-            result += '% This table contains results from rows '
-            f'{r_min} - {r_max}\n'
+            result += '% This table contains results from rows:'
+            result += '% ' + str(self.row_ids) + '\n'
 
         result += self.df.to_latex(
             columns=_columns,

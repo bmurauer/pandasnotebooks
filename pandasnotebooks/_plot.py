@@ -18,6 +18,7 @@ def plot_multi_scores(
         output_file=None,
         transpose=True,
         score_names=None):
+    result_widgets = {}
     tab_outputs = []
     tab = widgets.Tab()
     for i, score_name in enumerate(score_names):
@@ -30,9 +31,10 @@ def plot_multi_scores(
             widget = PlotWidget(sub_df, group_keys, filter_key, filter_values,
                                 method,
                                 output_file, transpose)
-
+            result_widgets[score_name] = widget
     tab.children = tab_outputs
     display(tab)
+    return result_widgets
 
 
 class PlotWidget:
