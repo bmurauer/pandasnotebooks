@@ -1,31 +1,32 @@
-import os
 import logging
+import os
 
 import ipywidgets as widgets
+import numpy as np
 from IPython.display import display
-
 
 logger = logging.getLogger(__name__)
 
 
 class LatexWidget:
     def __init__(
-        self,
-        df,
-        git_commit_ids,
-        row_ids=None,
-        output_file=None,
-        include_index=False,
-        float_format='{:,.3f}',
-        use_multirow=True,
-        use_multicolumn=True,
-        column_names=None,
-        column_includes=None,
-        column_formats=None,
-        overwrite_output_file=False,
-        highlight_max_per_column=False,
-        escape=False,
-        index_column_format='l',
+            self,
+            df,
+            git_commit_ids,
+            row_ids=None,
+            output_file=None,
+            include_index=False,
+            float_format='{:,.3f}',
+            use_multirow=True,
+            use_multicolumn=True,
+            column_names=None,
+            column_includes=None,
+            column_formats=None,
+            overwrite_output_file=False,
+            highlight_max_per_column=False,
+            escape=False,
+            index_column_format='l',
+            na_rep='-',
     ):
         self.df = df
         self.output = widgets.Output()
@@ -41,18 +42,16 @@ class LatexWidget:
         )
         self.w_include_index.observe(self._update_index_column_format)
         self.w_float_format = widgets.Text(
-            description='float format', value=float_format
-        )
+            description='float format', value=float_format)
+        self.w_na_rep = widgets.Text(
+            description='NaN repr.', value=na_rep)
         self.w_use_multirow = widgets.Checkbox(
-            description='use multirows', value=use_multirow
-        )
+            description='use multirows', value=use_multirow)
         self.w_use_multicolumn = widgets.Checkbox(
-            description='use multicolumns', value=use_multicolumn
-        )
+            description='use multicolumns', value=use_multicolumn)
         self.w_highlight_max_per_column = widgets.Checkbox(
             description='print the max value of each column in bold',
-            value=highlight_max_per_column,
-        )
+            value=highlight_max_per_column)
         self.w_escape = widgets.Checkbox(description='Escape Latex',
                                          value=escape)
         self.w_output_file = widgets.Text(description='output file',
@@ -202,7 +201,7 @@ class LatexWidget:
             header=selected_names,
             column_format=_formats,
             index=self.w_include_index.value,
-            float_format=self.w_float_format.value.format,
+            float_format=self.nan_safe_float,
             multirow=self.w_use_multirow.value,
             multicolumn=self.w_use_multicolumn.value,
             formatters=formatters,
@@ -210,24 +209,34 @@ class LatexWidget:
         )
         return result
 
+    def nan_safe_float(self, x):
+        if np.isnan(x):
+            return self.w_na_rep.value
+        return self.w_float_format.value.format(x)
+
     def _generate_formatters(self):
         if self.w_highlight_max_per_column.value:
-            formatters = []
-            for column in self.df.columns:
-                if self.df[column].dtype.kind in 'iuf':
-                    # int, unsigned-int, float
-                    formatters.append(self._generate_max_formatter(column))
-                else:
-                    formatters.append(None)
-            return formatters
+            return [self._generate_max_formatter(column)
+                    for column in self.df.columns]
         return None
 
     def _generate_max_formatter(self, column):
         def formatter(value):
-            raw_value = self.w_float_format.value.format(value)
-            if value == self.df[column].max():
-                return f'\\textbf{{ {raw_value} }} '
-            return raw_value
+            try:
+                value = float(value)
+            except ValueError:
+                return value
+            other_values = []
+            for ov in self.df[column].values:
+                try:
+                    other_values.append(float(ov))
+                except ValueError:
+                    pass
+            formatted_value = self.nan_safe_float(value)
+            if value == max(other_values):
+                return f'\\textbf{{ {formatted_value} }} '
+            return formatted_value
+
         return formatter
 
     def _write_file(self, button=None):
@@ -270,6 +279,7 @@ class LatexWidget:
                 self.w_highlight_max_per_column,
                 self.w_escape,
                 self.w_float_format,
+                self.w_na_rep,
                 self.w_draw_table_button,
                 self.latex_out,
                 widgets.HBox(
