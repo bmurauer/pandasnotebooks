@@ -43,6 +43,7 @@ class PlotWidget:
             filter_key=None,
             filter_values=None,
             method='max',
+            plot_type='bar',
             output_file=None,
             transpose=True,
     ):
@@ -61,6 +62,14 @@ class PlotWidget:
             options=valid_methods,
             value=method if method in valid_methods else 'max'
         )
+        self.w_method.observe(self.update_available_plot_types)
+
+        valid_plot_types = ['line', 'bar']
+        self.w_plot_type = widgets.RadioButtons(
+            options=valid_plot_types,
+            value=plot_type if plot_type in valid_plot_types else 'bar',
+        )
+
         self.w_transpose = widgets.Checkbox(description='transpose',
                                             value=transpose)
         self.w_filter_key = widgets.Select(
@@ -89,6 +98,9 @@ class PlotWidget:
         self.w_output_button.on_click(self.csv_callback)
         self.display()
 
+    def update_available_plot_types(self, x):
+        self.w_plot_type.disabled = self.w_method.value == 'box'
+
     def update_possible_filter_values(self, x):
         value = self.w_filter_key.value
         if len(value.strip()):
@@ -98,7 +110,7 @@ class PlotWidget:
         else:
             self.w_filter_value.options = []
 
-    def plot_callback(self, parameter, method, filter_key, filter_value,
+    def plot_callback(self, parameter, method, plot_type, filter_key, filter_value,
                       transpose):
         if filter_key and filter_value:
             df = self.df[
@@ -121,7 +133,11 @@ class PlotWidget:
                 self.filtered_df = group.mean()
             if transpose:
                 self.filtered_df = self.filtered_df.T
-            self.filtered_df.plot.bar()
+            plot_type = self.w_plot_type.value
+            if plot_type == 'bar':
+                self.filtered_df.plot.bar()
+            if plot_type == 'line':
+                self.filtered_df.plot.line()
 
     def csv_callback(self, click_event):
         path = self.w_file_name.value
@@ -137,7 +153,7 @@ class PlotWidget:
         return widgets.VBox(
             [
                 widgets.HBox(
-                    [self.w_parameters, self.w_method, self.w_transpose]),
+                    [self.w_parameters, self.w_method, self.w_plot_type, self.w_transpose]),
                 widgets.HBox([self.w_filter_key, self.w_filter_value]),
                 widgets.VBox(
                     [
@@ -153,6 +169,7 @@ class PlotWidget:
                     {
                         'parameter': self.w_parameters,
                         'method': self.w_method,
+                        'plot_type': self.w_plot_type,
                         'filter_key': self.w_filter_key,
                         'filter_value': self.w_filter_value,
                         'transpose': self.w_transpose,
